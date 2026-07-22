@@ -19,5 +19,9 @@ export async function POST(_req, { params }) {
   const path = ini.writeRawSettings(w.install_dir, v.content, w.platform);
   dbm.insertIniVersion(w.world_id, v.content, `restored from #${v.id}`);
   dbm.logEvent(w.world_id, "settings", `Restored PalWorldSettings.ini from history #${v.id} (restart to apply)`);
+  // Same reason as the editor's save path: registry-owned keys in the restored file
+  // (passwords, REST/RCON) must be adopted, or the next start would rewrite them from
+  // the DB and quietly undo the restore.
+  try { ini.syncManagedFromIni(w.world_id, w.install_dir, w.platform); } catch {}
   return NextResponse.json({ ok: true, path, content: v.content, running: sup.isRunning(w.world_id) });
 }

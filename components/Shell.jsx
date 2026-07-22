@@ -57,6 +57,12 @@ export default function Shell({ children }) {
 
   const W = collapsed ? 68 : 236;
 
+  // The login page is the one route reachable without a session, so it must not render
+  // the nav chrome — every link in it would bounce straight back to /login, and the
+  // widgets behind it (version check, job poller, first-run wizard) all call APIs that
+  // answer 401 until you're in.
+  if (path === "/login") return <>{children}</>;
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", height: "100vh", overflow: "hidden" }}>
       <FirstRunWizard />

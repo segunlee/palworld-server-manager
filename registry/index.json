@@ -39,6 +39,18 @@
       "completeness": 100
     },
     {
+      "code": "ko",
+      "name": "Korean",
+      "nativeName": "한국어",
+      "dir": "ltr",
+      "authors": [
+        "Palworld Server Manager"
+      ],
+      "url": "https://raw.githubusercontent.com/PrakashMandal-IV/palworld-server-manager/main/registry/packs/ko.json",
+      "updatedAt": "2026-07-21T00:00:00Z",
+      "completeness": 100
+    },
+    {
       "code": "zh",
       "name": "Chinese (Simplified)",
       "nativeName": "简体中文",

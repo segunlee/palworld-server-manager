@@ -6,6 +6,12 @@ import Shell from "@/components/Shell";
 const dbm = require("@/lib/db");
 const { loadResources, languageMeta } = require("@/lib/i18n/loader");
 
+// The chosen language is read from the registry DB below, at render time. Without
+// this, Next prerenders these pages at BUILD time and bakes in whatever language the
+// database held then — so switching to Korean left the server-rendered first paint in
+// English until the client swapped it, and <html lang>/<dir> stayed wrong entirely.
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Palworld Server Manager",
   description: "Provision, run, monitor and update multiple Palworld dedicated server worlds.",

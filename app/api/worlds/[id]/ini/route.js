@@ -32,5 +32,11 @@ export async function POST(req, { params }) {
   // Also snapshot the newly-saved content so it appears in history as a restorable point.
   dbm.insertIniVersion(w.world_id, content, "saved");
   dbm.logEvent(w.world_id, "settings", "Edited PalWorldSettings.ini in the in-app editor (restart to apply)");
-  return NextResponse.json({ ok: true, path, running: sup.isRunning(w.world_id) });
+  // This editor writes the raw file, but a few of its keys (the passwords, the REST /
+  // RCON settings) are also owned by the registry and rewritten from it on every
+  // start. Without this, editing ServerPassword here would be undone by the next
+  // start — silently reopening a password-protected server. Adopt the edit instead.
+  let synced = null;
+  try { synced = ini.syncManagedFromIni(w.world_id, w.install_dir, w.platform); } catch {}
+  return NextResponse.json({ ok: true, path, running: sup.isRunning(w.world_id), synced: !!synced });
 }

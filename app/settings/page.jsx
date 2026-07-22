@@ -357,7 +357,7 @@ export default function SettingsPage() {
           <span className={steam?.installed ? "s-running" : "s-crashed"}>
             {steam?.installed ? t("settings.steamcmdInstalled") : t("settings.steamcmdNotInstalled")}
           </span>
-          <span className="subtle">{t("settings.steamcmdNote")}</span>
+          <span className="subtle">{steam?.shared ? t("settings.steamcmdShared") : t("settings.steamcmdNote")}</span>
         </p>
         {steam?.path && <p className="subtle" style={{ fontFamily: "var(--font-mono)", fontSize: "0.74rem", marginTop: 6 }}>{steam.path}</p>}
       </div>

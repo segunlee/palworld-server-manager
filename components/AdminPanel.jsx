@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, toast } from "@/components/ui";
+import { pickZip, pickDirectory, isDesktop } from "@/components/filepick";
 
 export default function AdminPanel({ world, running, onChange }) {
   const { t } = useTranslation();
@@ -20,10 +21,12 @@ export default function AdminPanel({ world, running, onChange }) {
   const [legacyPerf, setLegacyPerf] = useState(world.legacy_perf_flags !== 0);
   const [saving, setSaving] = useState(false);
   const [installDir, setInstallDir] = useState(world.install_dir || "");
+  const [lgsmScript, setLgsmScript] = useState(world.lgsm_script || "");
+  const [savingLgsm, setSavingLgsm] = useState(false);
   const [movingDir, setMovingDir] = useState(false);
   const [ports, setPorts] = useState({ game_port: world.game_port, query_port: world.query_port, rest_api_port: world.rest_api_port, rcon_port: world.rcon_port });
   const [savingPorts, setSavingPorts] = useState(false);
-  const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
+  const isElectron = isDesktop();
   const portsChanged = ["game_port", "query_port", "rest_api_port", "rcon_port"].some((k) => Number(ports[k]) !== Number(world[k]));
 
   const savePorts = async () => {
@@ -38,8 +41,8 @@ export default function AdminPanel({ world, running, onChange }) {
   };
 
   const pickDir = async () => {
-    if (isElectron) { const p = await window.desktop.pickDirectory(); if (p) setInstallDir(p); }
-    else toast(t("create.typePathToast"));
+    const p = await pickDirectory();
+    if (p) setInstallDir(p);
   };
 
   const changeInstallDir = async () => {
@@ -80,6 +83,20 @@ export default function AdminPanel({ world, running, onChange }) {
       onChange();
     } catch (e) { toast(e.message, "error"); }
     finally { setSaving(false); }
+  };
+
+  // Delegating to LinuxGSM is a change of process OWNER, not just a setting: once set,
+  // Start/Stop/Restart run the script instead of spawning the server here. It can be
+  // changed while the world is running — that is in fact the normal case, since you
+  // adopt a server LinuxGSM is already running.
+  const saveLgsm = async () => {
+    setSavingLgsm(true);
+    try {
+      await api(`/api/worlds/${world.world_id}`, { method: "PATCH", body: { lgsm_script: lgsmScript.trim() } });
+      toast(lgsmScript.trim() ? t("admin.lgsmSaved") : t("admin.lgsmCleared"), "success");
+      onChange();
+    } catch (e) { toast(e.message, "error"); }
+    finally { setSavingLgsm(false); }
   };
 
   const saveWine = async () => {
@@ -223,7 +240,7 @@ export default function AdminPanel({ world, running, onChange }) {
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <input className="input" value={installDir} onChange={(e) => setInstallDir(e.target.value)}
             disabled={running || movingDir}
-            placeholder={isElectron ? t("create.browseFolderPlaceholder") : "e.g. D:\\SteamLibrary\\steamapps\\common\\PalServer"} />
+            placeholder={t("create.browseFolderPlaceholder")} />
           <button className="btn btn-ghost" onClick={pickDir} disabled={running || movingDir}><Icon name="folder" /> {t("common.browse")}</button>
           <button className="btn btn-primary" onClick={changeInstallDir}
             disabled={running || movingDir || !installDir.trim() || installDir.trim() === world.install_dir}>
@@ -231,6 +248,24 @@ export default function AdminPanel({ world, running, onChange }) {
           </button>
         </div>
         {running && <p className="subtle" style={{ fontWeight: 700, fontSize: "0.74rem", marginTop: 4 }}>{t("admin.stopToChangeFolder")}</p>}
+      </section>
+
+      <section>
+        <h3 className="heading" style={{ fontSize: "1rem" }}>{t("admin.lgsmTitle")}</h3>
+        <p className="subtle" style={{ fontWeight: 600, fontSize: "0.8rem", marginTop: 0, marginBottom: "0.6rem" }}>
+          {t("admin.lgsmDesc")}
+        </p>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <input className="input" value={lgsmScript} onChange={(e) => setLgsmScript(e.target.value)}
+            placeholder="/home/pwserver/pwserver" style={{ fontFamily: "ui-monospace, monospace", fontSize: "0.82rem" }} />
+          <button className="btn btn-primary" onClick={saveLgsm}
+            disabled={savingLgsm || lgsmScript.trim() === (world.lgsm_script || "")}>
+            {savingLgsm ? t("common.saving") : t("common.save")}
+          </button>
+        </div>
+        <p className="subtle" style={{ fontWeight: 700, fontSize: "0.74rem", marginTop: 4 }}>
+          {world.lgsm_script ? t("admin.lgsmActive", { script: world.lgsm_script }) : t("admin.lgsmInactive")}
+        </p>
       </section>
 
       <section>

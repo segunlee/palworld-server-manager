@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, toast } from "@/components/ui";
+import { pickZip, pickDirectory, isDesktop } from "@/components/filepick";
 
 export default function ModsPanel({ worldId, running }) {
   const { t } = useTranslation();
@@ -15,7 +16,7 @@ export default function ModsPanel({ worldId, running }) {
   const [checking, setChecking] = useState(false);
   // The mod awaiting a force-enable confirmation, if any.
   const [forcing, setForcing] = useState(null);
-  const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
+  const isElectron = isDesktop();
 
   const load = useCallback(async () => {
     try { setData(await api(`/api/worlds/${worldId}/mods`)); }
@@ -44,8 +45,7 @@ export default function ModsPanel({ worldId, running }) {
   };
 
   const importZip = async () => {
-    if (!isElectron) return toast(t("common.pickerDesktop"));
-    const zipPath = await window.desktop.pickZip();
+    const zipPath = await pickZip();
     if (!zipPath) return;
     setBusy(true);
     try {
@@ -121,8 +121,7 @@ export default function ModsPanel({ worldId, running }) {
   };
 
   const pickSteamLibrary = async () => {
-    if (!isElectron) return toast(t("common.folderPickerDesktop"));
-    const dir = await window.desktop.pickDirectory();
+    const dir = await pickDirectory();
     if (dir) setSteamLibrary(dir);
   };
 

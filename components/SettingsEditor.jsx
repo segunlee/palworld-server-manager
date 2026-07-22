@@ -132,10 +132,22 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
 
   if (!groups) return <p className="subtle" style={{ fontWeight: 600 }}>{t("editor.loading")}</p>;
 
+  // Palworld's own option labels live in lib/palfields.js as plain English strings,
+  // since they mirror the keys in DefaultPalWorldSettings.ini. Translate them at render
+  // time with the English label as the fallback, so a pack that hasn't covered a field
+  // yet still shows something readable instead of a blank.
+  //
+  // The untranslated g.title stays the group's identity (it keys the React list and the
+  // "Server Identity" check below) — only the displayed text goes through t().
+  const groupTitle = (g) => t(`palGroup.${g.title}`, g.title);
+  const fieldLabel = (f) => t(`palField.${f.key}`, f.label);
+
   const filtering = search.trim().length > 0;
   const q = search.toLowerCase();
+  // Search matches the translated label too, so typing Korean finds Korean fields.
   const visibleGroups = filtering
-    ? groups.map((g) => ({ ...g, fields: g.fields.filter((f) => f.label.toLowerCase().includes(q) || f.key.toLowerCase().includes(q)) })).filter((g) => g.fields.length)
+    ? groups.map((g) => ({ ...g, fields: g.fields.filter((f) =>
+        f.label.toLowerCase().includes(q) || fieldLabel(f).toLowerCase().includes(q) || f.key.toLowerCase().includes(q)) })).filter((g) => g.fields.length)
     : [groups[activeGroup]];
 
   return (
@@ -175,7 +187,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
           <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
             {groups.map((g, i) => (
               <button key={g.title} className={`btn ${activeGroup === i ? "btn-primary" : "btn-subtle"}`} style={{ padding: "0.35rem 0.7rem", fontSize: "0.8rem" }} onClick={() => setActiveGroup(i)}>
-                {g.title}
+                {groupTitle(g)}
               </button>
             ))}
           </div>
@@ -184,7 +196,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
 
       {visibleGroups.map((g) => (
         <div key={g.title} style={{ marginBottom: filtering ? "1.4rem" : 0 }}>
-          {filtering && <h4 className="heading" style={{ fontSize: "0.85rem", margin: "0 0 0.6rem", color: "var(--ink-soft)" }}>{g.title}</h4>}
+          {filtering && <h4 className="heading" style={{ fontSize: "0.85rem", margin: "0 0 0.6rem", color: "var(--ink-soft)" }}>{groupTitle(g)}</h4>}
           {/* Public IP/port only matter once the server is publicly listed. Nudge the
               user to turn that on — but only while it's still off. */}
           {g.title === "Server Identity" && world && !world.community_server && (
@@ -205,7 +217,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
                 <div key={f.key} style={isChanged ? { outline: "1px solid var(--green)", outlineOffset: 4, borderRadius: 4 } : undefined}>
                   <label className="label" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
                     <span title={f.key}>
-                      {f.label}
+                      {fieldLabel(f)}
                       {!isSet && <span className="subtle" style={{ fontWeight: 700, fontSize: "0.6rem", marginLeft: 5 }} title={t("editor.defaultTitle")}>{t("editor.default")}</span>}
                     </span>
                     {isChanged && (

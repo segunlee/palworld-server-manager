@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, Icon, toast } from "@/components/ui";
+import { pickZip, pickDirectory, isDesktop } from "@/components/filepick";
 
 export default function CreateWorldModal({ onClose, onDone }) {
   const [mode, setMode] = useState("choose"); // choose | new | existing
@@ -80,13 +81,13 @@ function NewInstall({ onBack, onClose, onDone }) {
   const [ports, setPorts] = usePorts();
   const [password, setPassword] = useState("");
   const [starting, setStarting] = useState(false);
-  const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
+  const isElectron = isDesktop();
   const hostPlatform = isElectron && window.desktop?.platform === "win32" ? "windows" : "linux";
   const [platform, setPlatform] = useState(hostPlatform);
 
   const pickDir = async () => {
-    if (isElectron) { const p = await window.desktop.pickDirectory(); if (p) setDir(p); }
-    else toast(t("create.typePathToast"));
+    const p = await pickDirectory();
+    if (p) setDir(p);
   };
 
   // Start the install, then hand off to the global downloads tray so progress
@@ -112,7 +113,7 @@ function NewInstall({ onBack, onClose, onDone }) {
         <Field label={t("create.worldName")}><input className="input" value={name} onChange={(e) => setName(e.target.value)} /></Field>
         <Field label={t("create.installFolder")} hint={t("create.installFolderHint")}>
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <input className="input" value={dir} onChange={(e) => setDir(e.target.value)} placeholder={isElectron ? t("create.browsePlaceholder") : "e.g. C:\\PalworldServers\\world1"} />
+            <input className="input" value={dir} onChange={(e) => setDir(e.target.value)} placeholder={t("create.browsePlaceholder")} />
             <button className="btn btn-ghost" onClick={pickDir}><Icon name="folder" /> {t("common.browse")}</button>
           </div>
         </Field>
@@ -145,11 +146,11 @@ function ExistingInstall({ onBack, onClose, onDone }) {
   const [ports, setPorts] = usePorts();
   const [keepPw, setKeepPw] = useState(true);
   const [saving, setSaving] = useState(false);
-  const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
+  const isElectron = isDesktop();
 
   const pick = async () => {
-    if (isElectron) { const p = await window.desktop.pickDirectory(); if (p) { setDir(p); detect(p); } }
-    else toast(t("create.typePathToast"));
+    const p = await pickDirectory();
+    if (p) { setDir(p); detect(p); }
   };
 
   const detect = async (p) => {
@@ -180,7 +181,7 @@ function ExistingInstall({ onBack, onClose, onDone }) {
       <Field label={t("create.serverFolderLabel")} hint={t("create.serverFolderHint")}>
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <input className="input" value={dir} onChange={(e) => setDir(e.target.value)}
-            placeholder={isElectron ? t("create.browseFolderPlaceholder") : "e.g. C:\\SteamLibrary\\steamapps\\common\\PalServer"}
+            placeholder={t("create.browseFolderPlaceholder")}
             onKeyDown={(e) => e.key === "Enter" && detect()} />
           <button className="btn btn-ghost" onClick={pick}><Icon name="folder" /> {t("common.browse")}</button>
           <button className="btn btn-subtle" onClick={() => detect()} disabled={checking}>{checking ? t("common.checking") : t("create.detect")}</button>

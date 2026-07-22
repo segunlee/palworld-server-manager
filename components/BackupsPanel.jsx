@@ -2,13 +2,14 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, Icon, fmtBytes, fmtTime, toast } from "@/components/ui";
+import { pickZip, isDesktop } from "@/components/filepick";
 
 export default function BackupsPanel({ worldId, backups, running, onChange }) {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [importing, setImporting] = useState(false);
   const [loc, setLoc] = useState(null);
-  const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
+  const isElectron = isDesktop();
 
   useEffect(() => {
     api(`/api/settings/backup-dir?worldId=${encodeURIComponent(worldId)}`).then((r) => setLoc(r.backup)).catch(() => {});
@@ -40,8 +41,7 @@ export default function BackupsPanel({ worldId, backups, running, onChange }) {
 
   const importSave = async () => {
     if (running) return toast(t("backups.stopBeforeImport"), "error");
-    if (!isElectron) return toast(t("backups.importPickerDesktop"));
-    const zipPath = await window.desktop.pickZip();
+    const zipPath = await pickZip();
     if (!zipPath) return;
     setImporting(true);
     try {

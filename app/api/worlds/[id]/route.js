@@ -78,10 +78,28 @@ export async function PATCH(req, { params }) {
     dbm.logEvent(params.id, "settings", `Install folder changed to ${info.installDir}`);
   }
 
-  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "rcon_port", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags"];
+  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "rcon_port", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags", "lgsm_script"];
 
   const clean = {};
   for (const k of allowed) if (k in patch) clean[k] = patch[k];
+
+  // Pointing a world at a LinuxGSM script hands process ownership to that script.
+  // Validate it up front: a typo'd path would silently fall back to direct-spawn and
+  // start a second server alongside the one LinuxGSM is already running.
+  if ("lgsm_script" in clean) {
+    const p = String(clean.lgsm_script || "").trim();
+    if (p) {
+      let st = null;
+      try { st = fs.statSync(p); } catch {}
+      if (!st || !st.isFile()) {
+        return NextResponse.json({ ok: false, error: `LinuxGSM script not found: ${p}` }, { status: 400 });
+      }
+      if (!(st.mode & 0o111)) {
+        return NextResponse.json({ ok: false, error: `LinuxGSM script is not executable: ${p}` }, { status: 400 });
+      }
+    }
+    clean.lgsm_script = p;
+  }
   // notify_events is stored as a JSON string column; accept an object from the client.
   if (clean.notify_events && typeof clean.notify_events === "object") {
     clean.notify_events = JSON.stringify(clean.notify_events);

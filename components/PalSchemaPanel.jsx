@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, toast } from "@/components/ui";
+import { pickZip, pickDirectory, isDesktop } from "@/components/filepick";
 
 // PalSchema content-mod management. Sits under the UE4SS section (PalSchema is a UE4SS
 // mod): install the framework — downloaded from GitHub or from a user-provided zip —
@@ -10,7 +11,7 @@ export default function PalSchemaPanel({ worldId, world, running }) {
   const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
-  const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
+  const isElectron = isDesktop();
   const windowsTarget = (world?.platform || "windows") === "windows";
 
   const load = useCallback(async () => {
@@ -24,8 +25,7 @@ export default function PalSchemaPanel({ worldId, world, running }) {
     if (running) return toast(t("palschema.stopFirst"), "error");
     let zipPath = null;
     if (fromZip) {
-      if (!isElectron) return toast(t("common.pickerDesktop"));
-      zipPath = await window.desktop.pickZip();
+      zipPath = await pickZip();
       if (!zipPath) return;
     }
     setBusy(true);
@@ -38,8 +38,7 @@ export default function PalSchemaPanel({ worldId, world, running }) {
   };
 
   const importMod = async () => {
-    if (!isElectron) return toast(t("common.pickerDesktop"));
-    const zipPath = await window.desktop.pickZip();
+    const zipPath = await pickZip();
     if (!zipPath) return;
     setBusy(true);
     try {

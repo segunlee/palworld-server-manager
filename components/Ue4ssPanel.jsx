@@ -2,12 +2,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, toast } from "@/components/ui";
+import { pickZip, pickDirectory, isDesktop } from "@/components/filepick";
 
 export default function Ue4ssPanel({ worldId, running }) {
   const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
-  const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
+  const isElectron = isDesktop();
 
   const load = useCallback(async () => {
     try { setData(await api(`/api/worlds/${worldId}/ue4ss`)); }
@@ -17,9 +18,8 @@ export default function Ue4ssPanel({ worldId, running }) {
   useEffect(() => { load(); }, [load]);
 
   const installUe4ss = async () => {
-    if (!isElectron) return toast(t("common.pickerDesktop"));
     if (running) return toast(t("ue4ss.stopBeforeInstall"), "error");
-    const zipPath = await window.desktop.pickZip();
+    const zipPath = await pickZip();
     if (!zipPath) return;
     setBusy(true);
     try {
@@ -36,8 +36,7 @@ export default function Ue4ssPanel({ worldId, running }) {
   };
 
   const importMod = async () => {
-    if (!isElectron) return toast(t("common.pickerDesktop"));
-    const zipPath = await window.desktop.pickZip();
+    const zipPath = await pickZip();
     if (!zipPath) return;
     setBusy(true);
     try {

@@ -6,3 +6,6 @@ dist-standalone/
 *.log
 .DS_Store
 .claude/
+
+# Web deployment: machine-local auth secret — never commit
+psm.env
