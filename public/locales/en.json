@@ -97,6 +97,7 @@
     "worlds.summary_other": "{{count}} worlds · {{running}} running · {{players}} online",
     "worlds.checkUpdates": "Check updates",
     "worlds.newWorld": "New world",
+    "worlds.newWorldDisabled": "Adding new worlds is disabled on this server.",
     "worlds.latestBuild_one": "Latest build: {{build}} · {{count}} needs update",
     "worlds.latestBuild_other": "Latest build: {{build}} · {{count}} need update",
     "worlds.steamUnreachable": "Could not reach Steam",

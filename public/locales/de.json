@@ -98,6 +98,7 @@
     "worlds.summary_other": "{{count}} Welten · {{running}} laufen · {{players}} online",
     "worlds.checkUpdates": "Updates prüfen",
     "worlds.newWorld": "Neue Welt",
+    "worlds.newWorldDisabled": "Das Hinzufügen neuer Welten ist auf diesem Server deaktiviert.",
     "worlds.latestBuild_one": "Neuester Build: {{build}} · {{count}} benötigt Update",
     "worlds.latestBuild_other": "Neuester Build: {{build}} · {{count}} benötigen Update",
     "worlds.steamUnreachable": "Steam konnte nicht erreicht werden",

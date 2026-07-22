@@ -7,6 +7,10 @@ import CreateWorldModal from "@/components/CreateWorldModal";
 
 const ACTION_TOAST = { start: "toast.worldStarted", stop: "toast.worldStopped", restart: "toast.worldRestarted" };
 
+// Adding new worlds is disabled on this deployment. Flip to false to restore the
+// "New World" / "Create World" buttons (they open <CreateWorldModal>).
+const NEW_WORLD_ENABLED = false;
+
 export default function WorldsPage() {
   const { t } = useTranslation();
   const [worlds, setWorlds] = useState([]);
@@ -65,7 +69,12 @@ export default function WorldsPage() {
           <button className="btn btn-ghost" onClick={checkUpdates} disabled={checking}>
             <Icon name="refresh" /> {checking ? t("common.checking") : t("worlds.checkUpdates")}
           </button>
-          <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
+          <button
+            className="btn btn-primary"
+            onClick={() => NEW_WORLD_ENABLED && setShowCreate(true)}
+            disabled={!NEW_WORLD_ENABLED}
+            title={NEW_WORLD_ENABLED ? undefined : t("worlds.newWorldDisabled")}
+          >
             <Icon name="plus" /> {t("worlds.newWorld")}
           </button>
         </div>
@@ -83,7 +92,7 @@ export default function WorldsPage() {
         </div>
       )}
 
-      {showCreate && (
+      {NEW_WORLD_ENABLED && showCreate && (
         <CreateWorldModal onClose={() => setShowCreate(false)} onDone={() => { setShowCreate(false); load(); }} />
       )}
     </div>
@@ -187,7 +196,14 @@ function EmptyState({ onCreate }) {
       <p className="subtle" style={{ fontWeight: 700, maxWidth: 460, margin: "0 auto 1.3rem" }}>
         {t("worlds.emptyBody")}
       </p>
-      <button className="btn btn-primary" onClick={onCreate}><Icon name="plus" /> {t("worlds.createWorld")}</button>
+      <button
+        className="btn btn-primary"
+        onClick={() => NEW_WORLD_ENABLED && onCreate()}
+        disabled={!NEW_WORLD_ENABLED}
+        title={NEW_WORLD_ENABLED ? undefined : t("worlds.newWorldDisabled")}
+      >
+        <Icon name="plus" /> {t("worlds.createWorld")}
+      </button>
     </div>
   );
 }

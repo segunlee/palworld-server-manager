@@ -97,6 +97,7 @@
     "worlds.summary_other": "월드 {{count}}개 · {{running}}개 실행 중 · {{players}}명 접속 중",
     "worlds.checkUpdates": "업데이트 확인",
     "worlds.newWorld": "새 월드",
+    "worlds.newWorldDisabled": "이 서버에서는 새 월드 추가가 비활성화되어 있습니다.",
     "worlds.latestBuild_one": "최신 빌드: {{build}} · {{count}}개 업데이트 필요",
     "worlds.latestBuild_other": "최신 빌드: {{build}} · {{count}}개 업데이트 필요",
     "worlds.steamUnreachable": "Steam에 연결할 수 없습니다",
