@@ -462,6 +462,7 @@
     "common.save": "저장",
     "common.edit": "편집",
     "common.restore": "복원",
+    "common.download": "다운로드",
     "logs.linesBuffered_one": "{{count}}줄 버퍼됨",
     "logs.linesBuffered_other": "{{count}}줄 버퍼됨",
     "logs.clear": "지우기",

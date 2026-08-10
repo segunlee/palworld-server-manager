@@ -80,11 +80,17 @@ export default function BackupsPanel({ worldId, backups, running, onChange }) {
         <div style={{ display: "grid", gap: "0.5rem" }}>
           {backups.map((b) => (
             <div key={b.id} className="panel-inset" style={{ padding: "0.6rem 0.8rem", display: "flex", alignItems: "center", gap: "0.8rem", flexWrap: "wrap" }}>
-              <Icon name="download" size={16} />
+              <Icon name="clock" size={16} />
               <div style={{ flex: 1, minWidth: 160 }}>
                 <div style={{ fontWeight: 800, fontSize: "0.84rem" }}>{fmtTime(b.created_at)}</div>
                 <div className="subtle" style={{ fontSize: "0.72rem", fontWeight: 700 }}>{fmtBytes(b.size_bytes)} · {b.reason}</div>
               </div>
+              {/* A plain link, not a fetch: the session cookie rides along and the browser
+                  streams the zip straight to disk instead of buffering it in the page. */}
+              <a className="btn btn-ghost" style={{ padding: "0.3rem 0.7rem" }}
+                 href={`/api/worlds/${worldId}/backups/${encodeURIComponent(b.id)}/download`} download>
+                <Icon name="download" size={14} /> {t("common.download")}
+              </a>
               <button className="btn btn-ghost" style={{ padding: "0.3rem 0.7rem" }} disabled={busy || running} onClick={() => restore(b.id)}>
                 <Icon name="restart" size={14} /> {t("common.restore")}
               </button>

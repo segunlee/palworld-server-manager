@@ -462,6 +462,7 @@
     "common.save": "Save",
     "common.edit": "Edit",
     "common.restore": "Restore",
+    "common.download": "Download",
     "logs.linesBuffered_one": "{{count}} line buffered",
     "logs.linesBuffered_other": "{{count}} lines buffered",
     "logs.clear": "Clear",

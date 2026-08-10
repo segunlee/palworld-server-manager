@@ -474,6 +474,7 @@
     "common.save": "Speichern",
     "common.edit": "Bearbeiten",
     "common.restore": "Wiederherstellen",
+    "common.download": "Herunterladen",
 
     "logs.linesBuffered_one": "{{count}} Zeile gepuffert",
     "logs.linesBuffered_other": "{{count}} Zeilen gepuffert",
